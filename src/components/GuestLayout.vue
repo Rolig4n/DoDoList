@@ -8,10 +8,6 @@
             style="width: 200px; height: 200px; opacity: 50%; position: absolute; top: 0; left: 50%; z-index: -1;"
         >
         <slot></slot>
-        <div>
-            <q-btn label="Logar" type="submit" color="primary"/>
-            <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
-        </div>
 
     </div>
   </template>

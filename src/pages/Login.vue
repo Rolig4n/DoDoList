@@ -32,8 +32,14 @@
         :rules="[ val => val && val.length > 8 || 'Insira uma senha com 8 digitos' ]"
       />
 
+      <div>
+          <q-btn label="Logar" type="submit" color="primary"/>
+          <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
+      </div>
+
     </q-form>
 
+    <br>
     <p>Ainda não é cadastrado? <router-link to="/signup">Clique aqui</router-link></p>
 
   </GuestLayout>
