@@ -1,5 +1,8 @@
 import axios from 'axios'
-// import router from './router'
+
+import axios from 'axios'
+
+axios.defaults.withCredentials = true
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -7,6 +10,7 @@ const axiosClient = axios.create({
   withXSRFToken: true,
 })
 
+// Não implementado
 // axiosClient.interceptors.request.use(
 //     (config) => {
 //         config.headers["Authorization"] = `Bearer ${localStorage.getItem("token")}`;

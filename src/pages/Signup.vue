@@ -72,7 +72,7 @@ const email = ref(null)
 const password = ref(null)
 const senhaConfirma = ref(null)
 
-const submit = async () => {
+async function submit() {
   const payload = {
     name: name.value,
     email: email.value,
@@ -80,11 +80,13 @@ const submit = async () => {
     senhaConfirma: senhaConfirma.value,
   }
 
-  axiosClient.get('/sanctum/csrf-cookie').then((response) => {
+  await axiosClient.get('/sanctum/csrf-cookie').then((response) => {
     console.log(response)
-    //axiosClient.post('/register', payload)
+    axiosClient.post('/register', payload)
   })
+
 }
+
 </script>
 
 <style></style>
