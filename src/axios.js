@@ -1,7 +1,5 @@
 import axios from 'axios'
 
-import axios from 'axios'
-
 axios.defaults.withCredentials = true
 
 const axiosClient = axios.create({

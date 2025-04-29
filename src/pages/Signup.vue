@@ -87,6 +87,12 @@ async function submit() {
 
 }
 
+function onReset () {
+  name.value = null
+  email.value = null
+  password.value = null
+  senhaConfirma.value = null
+}
 </script>
 
 <style></style>

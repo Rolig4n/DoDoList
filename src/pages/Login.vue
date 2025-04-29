@@ -3,7 +3,7 @@
     <h2>Login</h2>
     
     <q-form
-      @submit="onSubmit"
+      @submit.prevent="submit"
       @reset="onReset"
       autocorrect="off"
       autocomplete="off"
@@ -45,11 +45,30 @@
   </GuestLayout>
 </template>
 
-<script>
+<script setup>
 import GuestLayout from '../components/GuestLayout.vue'
-export default {
-  components: { GuestLayout },
+import { ref } from 'vue'
+import axiosClient from 'src/axios'
 
+const email = ref(null)
+const password = ref(null)
+
+async function submit() {
+  const payload = {
+    email: email.value,
+    password: password.value,
+  }
+
+  await axiosClient.get('/sanctum/csrf-cookie').then((response) => {
+    console.log(response)
+    axiosClient.post('/login', payload)
+  })
+
+}
+
+function onReset () {
+  email.value = null
+  password.value = null
 }
 </script>
 

@@ -10,6 +10,10 @@
         row-key="name"
         selection="single"
         v-model:selected="selected"
+        :loading="loading"
+        :filter="filter"
+        binary-state-sort
+        @request="getTarefas"
       >
       <template v-slot:top>
         <q-btn color="primary" :disable="loading" label="Adcionar" href="#/tarefa" />
@@ -28,76 +32,48 @@
 
 </template>
 
-<script>
-import { ref } from 'vue'
+<script setup>
+import { ref, onMounted } from 'vue'
 
-  const columns = [
-    {
-      name: 'id',
-      label: '#',
-      align: 'center',
-      field: row => row.id,
-      format: val => `${val}`,
-      sortable: true
-    },
-    { name: 'titulo', align: 'center', label: 'Titulo', field: 'titulo', sortable: true, required: true},
-    { name: 'descricao', align: 'center', label: 'Descricao', field: 'descricao', required: true},
-    { name: 'data_vencimento', align: 'center', label: 'Data vencimento', field: 'data_vencimento', sortable: true, required: true},
-    { name: 'status', label: 'Status', field: 'status', sortable: true, required: true},
-    
-  ]
+const columns = [
+  {
+    name: 'id',
+    label: '#',
+    align: 'center',
+    field: row => row.id,
+    format: val => `${val}`,
+    sortable: true
+  },
+  { name: 'titulo', align: 'center', label: 'Titulo', field: 'titulo', sortable: true, required: true},
+  { name: 'descricao', align: 'center', label: 'Descricao', field: 'descricao', required: true},
+  { name: 'data_vencimento', align: 'center', label: 'Data vencimento', field: 'data_vencimento', sortable: true, required: true},
+  { name: 'status', label: 'Status', field: 'status', sortable: true, required: true},
+  
+]
 
-  const rows = [
-    {
-      id: 1,
-      titulo: 'Front end',
-      descricao: 'terminar Front end',
-      data_vencimento: '2025-10-01',
-      status: 'pendente',
-      opcoes: [
-        {
-          label: 'Editar',
-          icon: 'edit',
-          color: 'positive',
-          action: () => {
-            console.log('Editar tarefa')
-          }
-        },
-        {
-          label: 'Excluir',
-          icon: 'delete',
-          color: 'negative',
-          action: () => {
-            console.log('Excluir tarefa')
-          }
-        }
-      ]
-    },
-  ]
+const rows = ref([])
+const selected = ref([])
+const loading = ref(false)
+const filter = ref('')
 
-  export default {
-    setup () {
-      const selected = ref([])
-      const loading = ref(false)
-      const filter = ref('')
-      return {
-        selected,
-        columns,
-        rows,
-        
-        loading,
-        filter,
-        
-        removeRow () {
-            loading.value = true
-            setTimeout(() => {
-            console.log('selected', JSON.stringify(selected.value))
-            loading.value = false
-            }, 500)
-        }
-      }
-    }
-  }
+onMounted(() => {
+  getTarefas()
+})
+
+
+async function getTarefas () {
+  const response = await fetch('http://localhost:8000/tarefas')
+  rows.value = await response.json()
+}
+
+function removeRow () {
+  loading.value = true
+  setTimeout(() => {
+  console.log('selected', JSON.stringify(selected.value))
+  loading.value = false
+  }, 500)
+}
+
 </script>
 
 <style>
