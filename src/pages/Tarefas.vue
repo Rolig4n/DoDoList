@@ -18,6 +18,7 @@
       <template v-slot:top>
         <q-btn color="primary" :disable="loading" label="Adcionar" href="#/tarefa" />
         <q-btn v-if="rows.length !== 0" class="q-ml-sm" color="primary" :disable="loading" label="Excluir" @click="removeRow" />
+        <q-btn v-if="rows.length !== 0 && selected.length === 1" class="q-ml-sm" color="primary" :disable="loading" label="Editar" @click="updateRow" />
         <q-space />
         <q-input borderless dense debounce="300" color="primary" v-model="filter">
           <template v-slot:append>
@@ -34,6 +35,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { api } from 'src/boot/axios'
 
 const columns = [
   {
@@ -60,18 +62,27 @@ onMounted(() => {
   getTarefas()
 })
 
-
 async function getTarefas () {
-  const response = await fetch('http://localhost:8000/tarefas')
-  rows.value = await response.json()
+  const response = await api.get('/tarefas')
+  rows.value = response.data
 }
 
-function removeRow () {
+async function removeRow () {
   loading.value = true
-  setTimeout(() => {
-  console.log('selected', JSON.stringify(selected.value))
-  loading.value = false
-  }, 500)
+  await api.delete(`/tarefas/${selected.value[0]?.id}/destroy`).catch((error) => {
+    console.log('error', error)
+  }).finally(() => {
+    loading.value = false
+  })
+}
+
+async function updateRow () {
+  loading.value = true
+  await api.delete(`/tarefas/${selected.value[0]?.id}/destroy`).catch((error) => {
+    console.log('error', error)
+  }).finally(() => {
+    loading.value = false
+  })
 }
 
 </script>

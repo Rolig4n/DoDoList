@@ -3,7 +3,7 @@
     <h3>Adicionar Tarefa</h3>
 
     <q-form
-      @submit="onSubmit"
+      @submit.prevent="onSubmit"
       @reset="onReset"
       class="q-gutter-md"
       style="display: grid; justify-content: center; justify-items: center"
@@ -39,41 +39,24 @@
   </div>
 </template>
 
-<script>
-import { useQuasar } from 'quasar'
+<script setup>
 import { ref } from 'vue'
+import {api} from 'src/boot/axios'
 
-export default {
-  setup() {
-    const $q = useQuasar()
+const titulo = ref(null)
+const descricao = ref(null)
+const data_vencimento = ref(null)
+const status = ref(null)
 
-    const titulo = ref(null)
-    const descricao = ref(null)
-    const data_vencimento = ref(null)
-    const status = ref(null)
+async function onSubmit() {
+  const response = await api.post('/tarefas')
+  console.log('response', response.data)
+}
 
-    return {
-      titulo,
-      descricao,
-      data_vencimento,
-      status,
-
-      onSubmit() {
-        $q.notify({
-          color: 'green-4',
-          textColor: 'white',
-          icon: 'cloud_done',
-          message: 'Submitted',
-        })
-      },
-
-      onReset() {
-        titulo.value = null
-        descricao.value = null
-        data_vencimento.value = null
-        status.value = null
-      },
-    }
-  },
+function onReset() {
+  titulo.value = null
+  descricao.value = null
+  data_vencimento.value = null
+  status.value = null
 }
 </script>
