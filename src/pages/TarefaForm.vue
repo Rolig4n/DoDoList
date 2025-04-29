@@ -8,32 +8,39 @@
       class="q-gutter-md"
       style="display: grid; justify-content: center; justify-items: center"
     >
-      <div class="q-gutter-md">
-        <q-input
-          filled
-          v-model="titulo"
-          label="Titulo *"
-          lazy-rules
-          :rules="[(val) => val.length > 0 || 'Preencha o campo']"
-        />
+      <q-input filled v-model="form.id" label="id" disable />
 
-        <q-input
-          filled
-          type="textarea"
-          v-model="descricao"
-          label="Descrição *"
-          lazy-rules
-          :rules="[(val) => val.length > 0 || 'Preencha o campo']"
-        />
+      <q-input
+        filled
+        v-model="form.titulo"
+        label="Titulo *"
+        lazy-rules
+        :rules="[(val) => val.length > 0 || 'Preencha o campo']"
+      />
 
-        <q-input filled type="date" v-model="data_vencimento" label="Data vencimento *" />
+      <q-input
+        filled
+        type="textarea"
+        v-model="form.descricao"
+        label="Descrição *"
+        lazy-rules
+        :rules="[(val) => val.length > 0 || 'Preencha o campo']"
+      />
 
-        <q-input filled disable type="select" v-model="status" label="Status *" value="pendente" />
+      <q-date v-model="form.data_vencimento" minimal />
 
-        <div>
-          <q-btn label="Adicionar" type="submit" color="primary" />
-          <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
-        </div>
+      <q-select
+        filled
+        v-model="form.status"
+        :options="options_status"
+        label="Status *"
+        v-if="id !== null"
+        disable
+      />
+
+      <div>
+        <q-btn label="Adicionar" type="submit" color="primary" @click="update" />
+        <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
   </div>
@@ -41,22 +48,44 @@
 
 <script setup>
 import { ref } from 'vue'
-import {api} from 'src/boot/axios'
+import { api } from 'src/boot/axios'
+import router from 'src/router'
 
-const titulo = ref(null)
-const descricao = ref(null)
-const data_vencimento = ref(null)
-const status = ref(null)
+const form = ref({
+  titulo: '',
+  descricao: '',
+  data_vencimento: '',
+  status: '',
+})
+const options_status = [
+  { label: 'Pendente', value: 'pendente' },
+  { label: 'Em Andamento', value: 'em andamento' },
+  { label: 'Concluída', value: 'concluida' },
+]
+const loading = ref(false)
 
 async function onSubmit() {
   const response = await api.post('/tarefas')
   console.log('response', response.data)
 }
 
+async function update() {
+  loading.value = true
+  await api
+    .get(`/tarefas/${form.value}/update`)
+    .catch((error) => {
+      console.log('error', error)
+    })
+    .finally(() => {
+      loading.value = false
+      router.push('/tarefas')
+    })
+}
+
 function onReset() {
-  titulo.value = null
-  descricao.value = null
-  data_vencimento.value = null
-  status.value = null
+  form.value.titulo = null
+  form.value.descricao = null
+  form.value.data_vencimento = null
+  form.value.status = null
 }
 </script>
