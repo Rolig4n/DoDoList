@@ -1,4 +1,5 @@
 import axios from 'axios'
+import router from './router'
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 axios.defaults.withCredentials = true

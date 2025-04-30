@@ -30,7 +30,7 @@
       <q-date v-model="form.data_vencimento" minimal />
 
       <q-select
-        v-if="id !== null"
+        v-if="form.id !== null"
         filled
         v-model="form.status"
         :options="options_status"
@@ -40,7 +40,7 @@
 
       <div>
         <q-btn label="Adicionar" type="submit" color="primary" 
-        v-if="id !== null" @click="update" />
+        v-if="form.id !== null" @click="update" />
         <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
@@ -48,11 +48,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import router from 'src/router'
 import axiosClient from 'src/axios'
+import { useQuasar } from 'quasar'
 
 const form = ref({
+  id: null,
   titulo: '',
   descricao: '',
   data_vencimento: '',
@@ -63,7 +66,20 @@ const options_status = [
   { label: 'Em Andamento', value: 'em andamento' },
   { label: 'Concluída', value: 'concluida' },
 ]
+const $q = useQuasar()
 const loading = ref(false)
+const route = useRoute()
+
+onMounted(async () => {
+  if (route.params.id) {
+    const response = await axiosClient.get(`/tarefas/${route.params.id}`)
+    form.value.id = response.data.id
+    form.value.titulo = response.data.titulo
+    form.value.descricao = response.data.descricao
+    form.value.data_vencimento = response.data.data_vencimento
+    form.value.status = response.data.status
+  }
+})
 
 async function onSubmit() {
   const response = await axiosClient.post('/tarefas')
@@ -75,7 +91,20 @@ async function update() {
   await axiosClient
     .get(`/tarefas/${form.value}/update`)
     .catch((error) => {
-      console.log('error', error)
+      $q.notify({
+        message: error.response.data.message,
+        color: 'accent',
+        actions: [
+          {
+            icon: 'close',
+            color: 'white',
+            round: true,
+            handler: () => {
+              /* ... */
+            },
+          },
+        ],
+      })
     })
     .finally(() => {
       loading.value = false
