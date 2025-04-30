@@ -47,8 +47,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { api } from 'src/boot/axios'
 import { useQuasar } from 'quasar'
+import axiosClient from 'src/axios'
 
 const columns = [
   {
@@ -90,7 +90,7 @@ onMounted(() => {
 })
 
 async function getTarefas() {
-  const response = await api.get('/tarefas')
+  const response = await axiosClient.get('/tarefas')
   rows.value = response.data
 }
 
@@ -102,7 +102,7 @@ async function removeRow() {
     cancel: true,
     persistent: true,
   }).onOk(async () => {
-    await api
+    await axiosClient
       .delete(`/tarefas/${selected.value[0]?.id}/destroy`)
       .then(
         $q.notify({

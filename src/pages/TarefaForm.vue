@@ -4,7 +4,7 @@
 
     <q-form
       @submit.prevent="onSubmit"
-      @reset="onReset"
+      @reset.prevent.stop="onReset"
       class="q-gutter-md"
       style="display: grid; justify-content: center; justify-items: center"
     >
@@ -30,16 +30,17 @@
       <q-date v-model="form.data_vencimento" minimal />
 
       <q-select
+        v-if="id !== null"
         filled
         v-model="form.status"
         :options="options_status"
         label="Status *"
-        v-if="id !== null"
         disable
       />
 
       <div>
-        <q-btn label="Adicionar" type="submit" color="primary" @click="update" />
+        <q-btn label="Adicionar" type="submit" color="primary" 
+        v-if="id !== null" @click="update" />
         <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
       </div>
     </q-form>
@@ -48,8 +49,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { api } from 'src/boot/axios'
 import router from 'src/router'
+import axiosClient from 'src/axios'
 
 const form = ref({
   titulo: '',
@@ -65,13 +66,13 @@ const options_status = [
 const loading = ref(false)
 
 async function onSubmit() {
-  const response = await api.post('/tarefas')
+  const response = await axiosClient.post('/tarefas')
   console.log('response', response.data)
 }
 
 async function update() {
   loading.value = true
-  await api
+  await axiosClient
     .get(`/tarefas/${form.value}/update`)
     .catch((error) => {
       console.log('error', error)

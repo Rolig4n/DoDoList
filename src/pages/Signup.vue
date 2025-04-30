@@ -4,7 +4,7 @@
 
     <q-form
       @submit.prevent="submit"
-      @reset="onReset"
+      @reset.prevent.stop="onReset"
       autocorrect="off"
       autocomplete="off"
       autocapitalize="off"
@@ -13,7 +13,7 @@
     >
       <q-input
         filled
-        v-model="name"
+        v-model="form.name"
         id="name"
         label="Seu nome"
         lazy-rules
@@ -22,7 +22,7 @@
 
       <q-input
         filled
-        v-model="email"
+        v-model="form.email"
         type="email"
         id="login"
         label="Seu email"
@@ -34,7 +34,7 @@
       <q-input
         filled
         type="password"
-        v-model="password"
+        v-model="form.password"
         id="password"
         label="Senha"
         lazy-rules
@@ -44,11 +44,13 @@
       <q-input
         filled
         type="password"
-        v-model="senhaConfirma"
+        v-model="form.senhaConfirma"
         id="senhaConfirma"
         label="Confirmar Senha"
         lazy-rules
-        :rules="[(val) => (val && val.length >= 8) || 'Insira uma senha com 8 digitos']"
+        :rules="[
+          (val) => val.length >= 8 || 'A senha deve ter no mínimo 8 caracteres'
+        ]"
       />
 
       <div>
@@ -63,35 +65,50 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar'
 import { ref } from 'vue'
 import GuestLayout from '../components/GuestLayout.vue'
 import axiosClient from 'src/axios'
 
-const name = ref(null)
-const email = ref(null)
-const password = ref(null)
-const senhaConfirma = ref(null)
+const $q = useQuasar()
+
+const form = ref({
+  name: null,
+  email: null,
+  password: null,
+  senhaConfirma: null,
+})
 
 async function submit() {
-  const payload = {
-    name: name.value,
-    email: email.value,
-    password: password.value,
-    senhaConfirma: senhaConfirma.value,
-  }
 
   await axiosClient.get('/sanctum/csrf-cookie').then((response) => {
     console.log(response)
-    axiosClient.post('/register', payload)
+    axiosClient.post('/register', form.value).catch((error) => {
+        console.log('error', error)
+        $q.notify({
+          message: error.response.data.message,
+          color: 'accent',
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              round: true,
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        })
+      })
   })
 
 }
 
 function onReset () {
-  name.value = null
-  email.value = null
-  password.value = null
-  senhaConfirma.value = null
+  form.value.name = null
+  form.value.email = null
+  form.value.password = null
+  form.value.senhaConfirma = null
 }
 </script>
 
