@@ -1,10 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <img
-    alt="Dodo logo"
-    src="~assets/dodo-logo.svg"
-    style="opacity: 33%; position: absolute; z-index: -1;"
-    >
+      alt="Dodo logo"
+      src="~assets/dodo-logo.svg"
+      style="opacity: 33%; position: absolute; z-index: -1"
+    />
     <q-header elevated>
       <q-toolbar>
         <!-- <q-btn
@@ -24,9 +24,9 @@
           <q-btn href="#/tarefas" style="background: #546e7a; color: #212121" label="Tarefas" />
         </q-toolbar-item>
 
-        <q-toolbar-item>
+        <!-- <q-toolbar-item>
           <q-btn style="background: #546e7a; color: #212121" label="Sair" @click="logout" />
-        </q-toolbar-item>
+        </q-toolbar-item> -->
       </q-toolbar>
     </q-header>
 
@@ -57,10 +57,10 @@
 </template>
 
 <script setup>
-function logout () {
-  console.log('Logout')
-  // window.location.href = '/#/login'
-}
+// function logout () {
+//   console.log('Logout')
+//   // window.location.href = '/#/login'
+// }
 // import { ref } from 'vue'
 // import EssentialLink from 'components/EssentialLink.vue'
 

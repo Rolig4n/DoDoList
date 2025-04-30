@@ -4,11 +4,10 @@
 
     <q-form
       @submit.prevent="onSubmit"
-      @reset.prevent.stop="onReset"
       class="q-gutter-md"
       style="display: grid; justify-content: center; justify-items: center"
     >
-      <q-input filled v-model="form.id" label="id" disable />
+      <q-input filled v-model="form.id" label="#" readonly />
 
       <q-input
         filled
@@ -27,21 +26,33 @@
         :rules="[(val) => val.length > 0 || 'Preencha o campo']"
       />
 
-      <q-date v-model="form.data_vencimento" minimal />
+      <div class="q-pa-md" style="max-width: 300px">
+        <q-input filled v-model="form.data_vencimento" label="Data de vencimento *" mask="date">
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date v-model="form.data_vencimento">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </div>
 
       <q-select
-        v-if="form.id !== null"
         filled
         v-model="form.status"
-        :options="options_status"
         label="Status *"
-        disable
+        :options="options"
+        style="width: 250px"
       />
 
       <div>
-        <q-btn label="Adicionar" type="submit" color="primary" 
-        v-if="form.id !== null" @click="update" />
-        <q-btn label="Limpar" type="reset" color="primary" flat class="q-ml-sm" />
+        <q-btn label="Adicionar" type="submit" color="primary" :disable="loading" class="q-ml-sm" />
+        <q-btn label="Voltar" color="primary" flat class="q-ml-sm" href="#/tarefas" />
       </div>
     </q-form>
   </div>
@@ -50,7 +61,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import router from 'src/router'
 import axiosClient from 'src/axios'
 import { useQuasar } from 'quasar'
 
@@ -59,38 +69,19 @@ const form = ref({
   titulo: '',
   descricao: '',
   data_vencimento: '',
-  status: '',
+  status: 'pendente',
 })
-const options_status = [
-  { label: 'Pendente', value: 'pendente' },
-  { label: 'Em Andamento', value: 'em andamento' },
-  { label: 'Concluída', value: 'concluida' },
-]
+const options = ['pendente', 'em andamento', 'concluida']
 const $q = useQuasar()
 const loading = ref(false)
 const route = useRoute()
 
 onMounted(async () => {
   if (route.params.id) {
-    const response = await axiosClient.get(`/tarefas/${route.params.id}`)
-    form.value.id = response.data.id
-    form.value.titulo = response.data.titulo
-    form.value.descricao = response.data.descricao
-    form.value.data_vencimento = response.data.data_vencimento
-    form.value.status = response.data.status
-  }
-})
-
-async function onSubmit() {
-  const response = await axiosClient.post('/tarefas')
-  console.log('response', response.data)
-}
-
-async function update() {
-  loading.value = true
-  await axiosClient
-    .get(`/tarefas/${form.value}/update`)
-    .catch((error) => {
+    try {
+      const response = await axiosClient.get(`/tarefas/${route.params.id}`)
+      form.value = response.data
+    } catch (error) {
       $q.notify({
         message: error.response.data.message,
         color: 'accent',
@@ -105,17 +96,83 @@ async function update() {
           },
         ],
       })
-    })
-    .finally(() => {
-      loading.value = false
-      router.push('/tarefas')
-    })
-}
+    }
+  }
+})
 
-function onReset() {
-  form.value.titulo = null
-  form.value.descricao = null
-  form.value.data_vencimento = null
-  form.value.status = null
+async function onSubmit() {
+  loading.value = true
+  if (form.value.id) {
+    await axiosClient
+      .put(`/tarefas/${form.value.id}/update`, form.value)
+      .then(
+        $q.notify({
+          message: 'Tarefa atualizada!',
+          color: 'secondary',
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              round: true,
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        }),
+      )
+      .catch((error) => {
+        $q.notify({
+          message: error.response.data.message,
+          color: 'accent',
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              round: true,
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        })
+      })
+  } else {
+    await axiosClient
+      .post('/tarefas', form.value)
+      .then(
+        $q.notify({
+          message: 'Tarefa criada!',
+          color: 'secondary',
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              round: true,
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        }),
+      )
+      .catch((error) => {
+        $q.notify({
+          message: error.response.data.message,
+          color: 'accent',
+          actions: [
+            {
+              icon: 'close',
+              color: 'white',
+              round: true,
+              handler: () => {
+                /* ... */
+              },
+            },
+          ],
+        })
+      })
+  }
+  loading.value = false
 }
 </script>
