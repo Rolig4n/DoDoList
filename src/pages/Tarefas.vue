@@ -92,6 +92,7 @@ onMounted(() => {
 async function getTarefas() {
   const response = await axiosClient.get('/tarefas')
   rows.value = response.data
+  tarefasVencidas()
 }
 
 async function removeRow() {
@@ -142,6 +143,46 @@ async function removeRow() {
       })
   })
   loading.value = false
+}
+
+async function tarefasVencidas() {
+  const currentDate = new Date()
+  const vencidas = rows.value.filter(
+    (tarefa) => new Date(tarefa.data_vencimento) < currentDate && tarefa.status !== 'concluida',
+  )
+  vencidas.map((tarefa) =>
+    $q.notify({
+      progress: true,
+      message: `A tarefa ${tarefa.titulo} esta vencida`,
+      color: 'accent',
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+          round: true,
+        },
+      ],
+    }),
+  )
+
+  if (tarefasVencidas.length > 0) {
+    $q.notify({
+      message: `As tarefas ${tarefasVencidas} estão vencidas`,
+      color: 'accent',
+      position: 'top',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+          round: true,
+          handler: () => {
+            /* ... */
+          },
+        },
+      ],
+    })
+  }
 }
 </script>
 
